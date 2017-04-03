@@ -81,7 +81,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 			return $this->lang;
 		}
 		if ($this->presenterLanguageParam) {
-			$presenter = $this->application->presenter;
+			$presenter = $this->application->getPresenter();
 			if (isset($presenter->{$this->presenterLanguageParam})) {
 				$this->setCurrentLang($presenter->{$this->presenterLanguageParam});
 				return $this->lang;
@@ -159,7 +159,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 		if (!$this->presenterLanguageParam) {
 			return NULL;
 		}
-		return $this->application->presenter->link('this', array($this->presenterLanguageParam => $switchLang));
+		return $this->application->getPresenter()->link('this', array($this->presenterLanguageParam => $switchLang));
 	}
 
 
@@ -279,7 +279,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 	 * @return string
 	 * @throws TranslatorException
 	 */
-	public function translate($string, $count = NULL)
+	public function translate($string, $count = 1)
 	{
 		$hasVariants = FALSE;
 		if (is_array($string)) {
@@ -296,9 +296,6 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 				$args = func_get_args();
 				unset($args[0]);
 				$args = array_values($args);
-
-			} elseif ($count === NULL) {
-				$args = NULL;
 
 			} else {
 				$args = array($count);
@@ -373,7 +370,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 			}
 		}
 
-		if ($args !== NULL AND FALSE !== strpos($translated, '%')) {
+		if (FALSE !== strpos($translated, '%')) {
 			$tmp = str_replace(array('%label', '%name', '%value'), array('#label', '#name', '#value'), $translated);
 			if (FALSE !== strpos($tmp, '%')) {
 				$translated = vsprintf($tmp, $args);
@@ -418,7 +415,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 		if ($translated === FALSE) {
 			$newStrings = &$this->getNewStrings();
 			$this->translatorStorage->removeTranslation($original, $lang, $this->namespace);
-			$newStrings[$original] = FALSE;
+			unset($newStrings[$original]);
 			return;
 		}
 
@@ -429,8 +426,6 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 		foreach ($translated as $variant => $string) {
 			$this->translatorStorage->setTranslation($original, $string, $lang, $variant, $this->namespace);
 		}
-		$newStrings = &$this->getNewStrings();
-		unset($newStrings[$original]);
 	}
 
 
@@ -476,7 +471,7 @@ class Translator extends Nette\Object implements Nette\Localization\ITranslator
 		if (($plural +1) > $nplurals) {
 			throw new TranslatorException(
 				"Plural-form parse error for $lang. Plural form cannot exceed ".($nplurals-1)
-			  . " regarding to nplural=$nplurals, but $plural returned. Check plural-form meta $pluralForms.");
+				. " regarding to nplural=$nplurals, but $plural returned. Check plural-form meta $pluralForms.");
 		}
 
 		return array($nplurals, $plural);
