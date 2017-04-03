@@ -29,6 +29,8 @@ class Panel extends Nette\Object implements \Tracy\IBarPanel
 	/** @var Nette\Http\IRequest */
 	protected $httpRequest;
 
+	/** @var Nette\Application\UI\ITemplateFactory */
+	protected $templateFactory;
 
 
 	/**
@@ -36,10 +38,11 @@ class Panel extends Nette\Object implements \Tracy\IBarPanel
 	 * @param Nette\Http\IRequest $httpRequest
 	 * @throws Nette\InvalidArgumentException
 	 */
-	public function __construct(Translator $translator, Nette\Http\IRequest $httpRequest)
+	public function __construct(Translator $translator, Nette\Http\IRequest $httpRequest, Nette\Application\UI\ITemplateFactory $templateFactory)
 	{
 		$this->translator = $translator;
 		$this->httpRequest = $httpRequest;
+		$this->templateFactory = $templateFactory;
 
 		$this->processRequest();
 	}
@@ -95,7 +98,7 @@ class Panel extends Nette\Object implements \Tracy\IBarPanel
 	 */
 	public function getTab()
 	{
-		$template = new Nette\Templating\FileTemplate(__DIR__ . '/tab.phtml');
+		$template = $this->templateFactory->createTemplate()->setFile(__DIR__ . '/tab.phtml');
 		return $template->__toString();
 	}
 
