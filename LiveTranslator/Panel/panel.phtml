@@ -557,7 +557,7 @@
           }
         }
       };
-      xmlHttp.open("POST", window.location, true);
+      xmlHttp.open("POST", window.location.href, true);
       xmlHttp.setRequestHeader({$panel::XHR_HEADER}, 'devel');
       xmlHttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       xmlHttp.send(JSON.stringify(data));
